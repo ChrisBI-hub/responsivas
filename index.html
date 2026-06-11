@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Responsiva de Equipo · {{ empresa }}</title>
+    <style>
+        @page {
+            size: letter;
+            margin: 0.75cm;
+        }
+        body {
+            background: #fff;
+            font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+            font-size: 11px;
+            color: #1e1e1e;
+            margin: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 6px;
+            table-layout: fixed;
+        }
+        td, th {
+            border: 1px solid #111;
+            padding: 3px 5px;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            hyphens: auto;
+        }
+        /* Estilos del Encabezado */
+        .encabezado-principal {
+            border: 2px solid #111;
+        }
+        .encabezado-principal td {
+            border: 1px solid #111;
+        }
+        .logo-celda {
+            text-align: center;
+            width: 20%;
+            vertical-align: middle;
+            padding: 6px;
+        }
+        .logo-imagen {
+            display: block;
+            max-width: 100%;
+            max-height: 60px;
+            width: auto;
+            height: auto;
+            margin: 0 auto;
+        }
+        .titulo-doc {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            width: 50%;
+            background-color: #f8f9fa;
+            line-height: 1.15;
+            vertical-align: middle;
+        }
+        .datos-doc {
+            font-size: 9px;
+            vertical-align: middle;
+        }
+        .datos-doc-etiqueta {
+            width: 12%;
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        .datos-doc-valor {
+            width: 18%;
+        }
+        /* Estilos de Secciones */
+        .titulo-seccion {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            text-align: center;
+            font-size: 11px;
+            padding: 3px;
+            border: 2px solid #111;
+        }
+        .tabla-datos {
+            border: 2px solid #111;
+            border-top: none;
+        }
+        .etiqueta {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            width: 15%;
+        }
+        .valor {
+            width: 75%;
+        }
+        .tabla-equipo td,
+        .tabla-software td,
+        .tabla-perifericos td {
+            font-size: 10px;
+        }
+        /* Condiciones */
+        .texto-condiciones {
+            font-size: 9px;
+            line-height: 1.08;
+            padding: 8px 10px;
+            border: 2px solid #111;
+        }
+        .texto-condiciones p {
+            margin: 0 0 4px 0;
+        }
+        ol {
+            margin-top: 3px;
+            margin-bottom: 4px;
+            padding-left: 15px;
+        }
+        li { margin-bottom: 1px; }
+        
+        /* Firmas */
+        .seccion-firmas {
+            margin-top: 80px; /* <--- AUMENTÉ ESTE VALOR PARA BAJAR LAS FIRMAS */
+            width: 100%;
+            border: none;
+        }
+        .seccion-firmas td {
+            border: none;
+            text-align: center;
+            vertical-align: bottom;
+            width: 50%;
+            padding: 6px 16px;
+            font-size: 10px;
+        }
+        .linea-firma {
+            border-bottom: 1px solid #000;
+            margin-bottom: 4px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .no-partir {
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+<body>
+
+    <table class="encabezado-principal no-partir">
+        <colgroup>
+            <col style="width: 20%;">
+            <col style="width: 50%;">
+            <col style="width: 12%;">
+            <col style="width: 18%;">
+        </colgroup>
+        <tr>
+            <td rowspan="5" class="logo-celda">
+                <img src="image.png" alt="Logo" class="logo-imagen">
+            </td>
+            <td rowspan="5" class="titulo-doc">
+                RESPONSIVA DE ASIGNACIÓN<br>DE EQUIPOS DE CÓMPUTO
+            </td>
+            <td class="datos-doc datos-doc-etiqueta">Código:</td>
+            <td class="datos-doc datos-doc-valor">F001-PR-TI-03</td>
+        </tr>
+        <tr>
+            <td class="datos-doc datos-doc-etiqueta">Proc. de negocio:</td>
+            <td class="datos-doc datos-doc-valor">PC-TDI-05</td>
+        </tr>
+        <tr>
+            <td class="datos-doc datos-doc-etiqueta">Proceso:</td>
+            <td class="datos-doc datos-doc-valor">Tecnologías de la información</td>
+        </tr>
+        <tr>
+            <td class="datos-doc datos-doc-etiqueta">Versión:</td>
+            <td class="datos-doc datos-doc-valor">03</td>
+        </tr>
+        <tr>
+            <td class="datos-doc datos-doc-etiqueta">Inicio de vigencia:</td>
+            <td class="datos-doc datos-doc-valor">{{ Fecha_Creacion }}</td>
+        </tr>
+        
+    </table>
+
+    <div class="titulo-seccion">Datos del Usuario</div>
+    <table class="tabla-datos no-partir">
+        <colgroup>
+            <col style="width: 16%;">
+            <col style="width: 26%;">
+            <col style="width: 16%;">
+            <col style="width: 42%;">
+        </colgroup>
+        <tr>
+            <td class="etiqueta">Empresa:</td>
+            <td>{{Empresa}}</td>
+            <td class="etiqueta">Fecha de asignación:</td>
+            <td>{{Fecha_Modificacion}}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">Nombre del usuario:</td>
+            <td colspan="3">{{ Colaborador }}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">Puesto:</td>
+            <td>{{ puesto }}</td>
+            <td class="etiqueta">Departamento:</td>
+            <td>{{ Sub_área }}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">Usuario de Red:</td>
+            <td colspan="3">{{ usuario_red }}</td>
+        </tr>
+    </table>
+
+
+    <div class="titulo-seccion">Datos del Equipo (CPU)</div>
+    <table class="tabla-datos tabla-equipo no-partir">
+        <colgroup>
+            <col style="width: 12%;">
+            <col style="width: 21%;">
+            <col style="width: 12%;">
+            <col style="width: 21%;">
+            <col style="width: 14%;">
+            <col style="width: 20%;">
+        </colgroup>
+        <tr>
+            <td class="etiqueta">Host:</td>
+            <td>{{Host}}</td>
+            <td class="etiqueta">No. Serie:</td>
+            <td>{{No_Serie}}</td>
+            <td class="etiqueta">Estado Físico:</td>
+            <td>{{Estado}}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">Marca:</td>
+            <td>{{Marca}}</td>
+            <td class="etiqueta">Modelo:</td>
+            <td>{{Modelo}}</td>
+            <td class="etiqueta">Procesador:</td>
+            <td>{{Procesador}}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">RAM:</td>
+            <td>{{RAM}}</td>
+            <td class="etiqueta">Disco duro:</td>
+            <td colspan="3">{{Capacidad_Disco}}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">Proyecto:</td>
+            <td colspan="5">{{ proyecto }}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">No. Routing:</td>
+            <td colspan="2">{{ routing }}</td>
+            <td class="etiqueta">Observaciones:</td>
+            <td colspan="2">{{Observaciones}}</td>
+        </tr>
+    </table>
+
+    <div class="titulo-seccion">Software Instalado</div>
+    <table class="tabla-datos tabla-software no-partir">
+        <colgroup>
+            <col style="width: 20%;">
+            <col style="width: 30%;">
+            <col style="width: 20%;">
+            <col style="width: 30%;">
+        </colgroup>
+        <tr>
+            <td class="etiqueta">Sistema Operativo:</td>
+            <td>{{SO}}</td>
+            <td class="etiqueta">Ofimática:</td>
+            <td>{{Office}}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">Lector PDF:</td>
+            <td>{{Lector_PDF}}</td>
+            <td class="etiqueta">Antivirus:</td>
+            <td>{{Antivirus}}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">ERP:</td>
+            <td>{{ERP}}</td>
+            <td class="etiqueta">Otros:</td>
+            <td>{{Otro_1}}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">Otro 2:</td>
+            <td>{{Otro_2}}</td>
+            <td class="etiqueta">Otro 3:</td>
+            <td>{{Otro_3}}</td>
+        </tr>
+    </table>
+
+    <div class="titulo-seccion">Hardware Adicional / Periféricos</div>
+    <table class="tabla-datos tabla-perifericos no-partir" style="text-align: center;">
+        <thead>
+            <tr style="background-color: #f8f9fa; font-weight: bold;">
+                <td>Dispositivo</td>
+                <td>No. Serie</td>
+                <td>Marca</td>
+                <td>Modelo</td>
+                <td>Estado</td>
+                <td>Observaciones</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in hardware %}
+            <tr>
+                <td>{{ item.Tipo }}</td>
+                <td>{{ item.No_Serie }}</td>
+                <td>{{ item.Marca }}</td>
+                <td>{{ item.Modelo }}</td>
+                <td>{{ item.Estado }}</td>
+                <td>{{ item.Observaciones }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="color: #666;">No hay hardware adicional asignado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="texto-condiciones">
+        <p style="margin-top: 0;"><strong>Por el presente, yo, {{ Colaborador }}, hago constar que {{ Empresa }} me ha entregado el equipo anteriormente descrito para el desempeño de mis labores. Asimismo, tras haberlo revisado, manifiesto que se encuentra completo y en buen estado, por lo que me comprometo a:</strong></p>
+        <ol>
+            <li>Devolverlo en buen estado al término de mi relación laboral con la empresa, o en el momento en que me sea requerido.</li>
+            <li>Entregarlo sin daños físicos ni alteraciones en su hardware o software, salvo el desgaste natural ocasionado por su uso ordinario.</li>
+            <li>Declaro que no instalaré software no licenciado o de procedencia irregular que no esté amparado por los acuerdos de licenciamiento de la compañía o por acuerdos con terceros, de los cuales se derive un soporte físico lícito que permita demostrar su adquisición.</li>
+            <li>Declaro que no instalaré ningún software por mi cuenta; en caso de requerirlo, deberé solicitarlo al departamento de Infraestructura y Ciberseguridad, contando con la debida autorización de la Subdirección de Transformación Digital y Mejora Continua. Acepto que, de realizar alguna instalación no autorizada, recibiré una llamada de atención por escrito; en caso de reincidencia, se me levantará un acta administrativa. Asimismo, si la empresa determina que el software instalado representa un riesgo alto para la seguridad de la información, esto podrá ser motivo de baja definitiva.</li>
+            <li>En caso de pérdida, robo o extravío, me comprometo a levantar el acta circunstancial ante el Ministerio Público y entregar una copia de la misma a la empresa, presentando el original para su cotejo.</li>
+            <li>Declaro que no haré uso indebido del equipo ni lo destinaré a fines ajenos a las funciones que me han sido asignadas de acuerdo con mi rol dentro de la organización.</li>
+            <li>Declaro que me comprometo a comunicar cualquier variación en los datos aquí especificados o a devolver el equipo al área de Infraestructura y Ciberseguridad de mi centro de trabajo en caso de baja en la empresa.</li>
+            <li>Declaro que, en caso de incumplimiento de estas directrices, acepto las sanciones correspondientes por parte de RR. HH., pudiéndose descontar de mi retribución salarial el importe del equipo, además de las consecuencias legales aplicables.</li>
+        </ol>
+        <p style="margin-bottom: 0;">Así mismo, asumo la responsabilidad de comunicar cualquier cambio o modificación en la configuración y funcionamiento del equipo, así como cualquier anomalía, tales como daño, robo o pérdida del mismo, a la mesa de ayuda ABC, a través de los números telefónicos correspondientes: <strong>5579735542</strong>, y/o al correo electrónico: <strong>ticket@abcsc.mx</strong>.</p>
+    </div>
+
+    <table class="seccion-firmas">
+        <tr>
+            <td>
+                <div class="linea-firma"></div>
+                <strong>Nombre y firma del usuario</strong><br>
+                {{ puesto }}
+            </td>
+
+
+            <td>
+                <div class="linea-firma"></div>
+                <strong>José Luis Hernández</strong><br>
+                Gerente de Infraestructura y Ciberseguridad<br>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

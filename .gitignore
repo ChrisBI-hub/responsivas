@@ -1,0 +1,7 @@
+responsiva/
+buil/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
