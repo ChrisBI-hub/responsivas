@@ -1,10 +1,17 @@
 import argparse
+from datetime import date
 from pathlib import Path
 import re
 
-import pyodbc
 from jinja2 import Environment, FileSystemLoader
 from weasyprint import HTML
+
+try:
+    import pyodbc
+    PYODBC_ERROR = pyodbc.Error
+except ModuleNotFoundError:
+    pyodbc = None
+    PYODBC_ERROR = Exception
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -78,7 +85,90 @@ def build_test_document():
     }
 
 
+def prompt_value(label, default=""):
+    suffix = f" [{default}]" if default not in (None, "") else ""
+    value = input(f"{label}{suffix}: ").strip()
+    return value if value else default
+
+
+def prompt_section(title):
+    print("\n" + title)
+    print("-" * len(title))
+
+
+def build_manual_document():
+    today = date.today().isoformat()
+
+    prompt_section("Datos generales")
+    context = {
+        "empresa": prompt_value("Empresa corta / logo", "ABC"),
+        "Empresa": prompt_value("Empresa", "ABC LOGISTICA"),
+        "Fecha_Creacion": prompt_value("Fecha de creacion", today),
+        "Fecha_Modificacion": prompt_value("Fecha de modificacion", today),
+        "Colaborador": prompt_value("Colaborador"),
+        "puesto": prompt_value("Puesto"),
+        "Sub_área": prompt_value("Sub-area"),
+        "usuario_red": prompt_value("Usuario de red"),
+        "proyecto": prompt_value("Proyecto"),
+        "routing": prompt_value("Routing"),
+        "Observaciones": prompt_value("Observaciones"),
+    }
+
+    prompt_section("Equipo principal")
+    context.update(
+        {
+            "Host": prompt_value("Host"),
+            "No_Serie": prompt_value("No. serie CPU"),
+            "Estado": prompt_value("Estado", "Bueno"),
+            "Marca": prompt_value("Marca"),
+            "Modelo": prompt_value("Modelo"),
+            "Procesador": prompt_value("Procesador"),
+            "RAM": prompt_value("RAM"),
+            "Capacidad_Disco": prompt_value("Capacidad de disco"),
+        }
+    )
+
+    prompt_section("Software")
+    context.update(
+        {
+            "SO": prompt_value("Sistema operativo"),
+            "Office": prompt_value("Office"),
+            "Lector_PDF": prompt_value("Lector PDF"),
+            "Antivirus": prompt_value("Antivirus"),
+            "ERP": prompt_value("ERP", "N/A"),
+            "Otro_1": prompt_value("Otro software 1"),
+            "Otro_2": prompt_value("Otro software 2"),
+            "Otro_3": prompt_value("Otro software 3"),
+        }
+    )
+
+    prompt_section("Hardware adicional")
+    hardware = []
+    print("Captura perifericos u otros equipos. Deja Tipo vacio para terminar.")
+    while True:
+        tipo = prompt_value("Tipo")
+        if not tipo:
+            break
+        hardware.append(
+            {
+                "Tipo": tipo,
+                "No_Serie": prompt_value("No. serie"),
+                "Marca": prompt_value("Marca"),
+                "Modelo": prompt_value("Modelo"),
+                "Estado": prompt_value("Estado", "Bueno"),
+                "Observaciones": prompt_value("Observaciones", "Sin observaciones"),
+            }
+        )
+        print(f"Hardware agregado: {len(hardware)}")
+
+    context["hardware"] = hardware
+    return context
+
+
 def get_connection():
+    if pyodbc is None:
+        raise RuntimeError("pyodbc no esta instalado; instala dependencias o usa --manual/--prueba.")
+
     conn_str = (
         f"DRIVER={SQL_CONFIG['driver']};"
         f"SERVER={SQL_CONFIG['server']};"
@@ -235,7 +325,24 @@ def main():
         action="store_true",
         help="Genera un PDF de prueba sin conectarse a SQL Server.",
     )
+    parser.add_argument(
+        "--manual",
+        action="store_true",
+        help="Solicita los datos por consola y genera una responsiva sin SQL Server.",
+    )
     args = parser.parse_args()
+
+    if args.manual:
+        print("Captura manual de responsiva...")
+        try:
+            documento = build_manual_document()
+        except KeyboardInterrupt:
+            print("\nCaptura cancelada.")
+            return
+
+        generated_files = render_pdfs([documento])
+        print(f"PDF manual generado: {generated_files[0]}")
+        return
 
     if args.prueba:
         print("Generando PDF de prueba...")
@@ -246,7 +353,7 @@ def main():
     print("Generando responsivas PDF...")
     try:
         documentos = fetch_data()
-    except pyodbc.Error as exc:
+    except PYODBC_ERROR as exc:
         print(f"Error de conexion o consulta SQL: {exc}")
         return
     except Exception as exc:
