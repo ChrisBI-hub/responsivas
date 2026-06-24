@@ -8,7 +8,7 @@ SELECT
 [Modelo],
 [Procesador],
 [RAM],
-CONCAT([Capacidad_Discos], ' ', [Tipo_Disco]) AS [Capacidad_Disco],
+CONCAT([Capacidad_Disco], ' ', [Tipo_Disco]) AS [Capacidad_Disco],
 [Observaciones],
 [Codigo_QR]
 FROM [BI].[Inventario].[CPU]

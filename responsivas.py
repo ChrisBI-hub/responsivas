@@ -1,5 +1,5 @@
 import argparse
-from datetime import date
+from datetime import datetime
 from pathlib import Path
 import re
 
@@ -28,11 +28,12 @@ SQL_CONFIG = {
 
 
 def build_test_document():
+    now = current_timestamp()
     return {
         "empresa": "ABC",
         "Empresa": "ABC LOGISTICA",
-        "Fecha_Creacion": "2026-06-08",
-        "Fecha_Modificacion": "2026-06-08",
+        "Fecha_Creacion": now,
+        "Fecha_Modificacion": now,
         "Colaborador": "USUARIO DE PRUEBA",
         "puesto": "ANALISTA DE OPERACIONES",
         "Sub_área": "INFRAESTRUCTURA Y CIBERSEGURIDAD",
@@ -45,8 +46,8 @@ def build_test_document():
         "Procesador": "INTEL CORE I5",
         "RAM": "16 GB",
         "Capacidad_Disco": "512 GB SSD",
-        "proyecto": "ABC",
-        "routing": "RT-001",
+        "proyecto": "N/A",
+        "routing": "CPU-PRUEBA",
         "Observaciones": "Equipo de prueba para validar el formato PDF.",
         "SO": "Windows 11 Pro",
         "Office": "Microsoft 365",
@@ -97,20 +98,19 @@ def prompt_section(title):
 
 
 def build_manual_document():
-    today = date.today().isoformat()
+    now = current_timestamp()
 
     prompt_section("Datos generales")
     context = {
         "empresa": prompt_value("Empresa corta / logo", "ABC"),
         "Empresa": prompt_value("Empresa", "ABC LOGISTICA"),
-        "Fecha_Creacion": prompt_value("Fecha de creacion", today),
-        "Fecha_Modificacion": prompt_value("Fecha de modificacion", today),
+        "Fecha_Creacion": now,
+        "Fecha_Modificacion": now,
         "Colaborador": prompt_value("Colaborador"),
         "puesto": prompt_value("Puesto"),
         "Sub_área": prompt_value("Sub-area"),
         "usuario_red": prompt_value("Usuario de red"),
-        "proyecto": prompt_value("Proyecto"),
-        "routing": prompt_value("Routing"),
+        "proyecto": "N/A",
         "Observaciones": prompt_value("Observaciones"),
     }
 
@@ -127,6 +127,7 @@ def build_manual_document():
             "Capacidad_Disco": prompt_value("Capacidad de disco"),
         }
     )
+    context["routing"] = context["Host"]
 
     prompt_section("Software")
     context.update(
@@ -187,6 +188,10 @@ def load_sql(filename):
     return sql.rstrip().rstrip(";")
 
 
+def current_timestamp():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
 def query_to_dicts(cursor, sql, params=()):
     cursor.execute(sql, params)
     columns = [column[0] for column in cursor.description]
@@ -209,10 +214,15 @@ def first_value(lookup, *candidates, default=""):
     return default
 
 
-def merge_aliases(cpu_row, software_row):
+def merge_aliases(cpu_row, software_row, user_row, timestamp):
     context = {}
     context.update(cpu_row)
     context.update(software_row)
+    context.update(user_row)
+
+    context["Fecha_Creacion"] = timestamp
+    context["Fecha_Modificacion"] = timestamp
+    context["proyecto"] = "N/A"
 
     lookup = build_lookup(context)
     aliases = {
@@ -220,10 +230,10 @@ def merge_aliases(cpu_row, software_row):
         "Empresa": ("Empresa", "empresa"),
         "Fecha_Creacion": ("Fecha_Creacion", "fecha_creacion"),
         "Fecha_Modificacion": ("Fecha_Modificacion", "fecha_modificacion", "Timestamp"),
-        "Colaborador": ("Colaborador", "colaborador", "Usuario", "Nombre_Usuario"),
+        "Colaborador": ("Colaborador", "colaborador", "Nombre del usuario", "Nombre_Usuario"),
         "puesto": ("puesto", "Puesto"),
         "Sub_área": ("Sub_área", "Sub_area", "Departamento", "departamento"),
-        "usuario_red": ("usuario_red", "Usuario_Red", "usuario"),
+        "usuario_red": ("usuario_red", "Usuario_Red", "Usuario de Red", "usuario"),
         "Host": ("Host", "Host_CPU", "host"),
         "No_Serie": ("No_Serie", "serie", "Serial", "Numero_Serie"),
         "Estado": ("Estado", "estado"),
@@ -249,6 +259,8 @@ def merge_aliases(cpu_row, software_row):
         if target not in context or context[target] in (None, ""):
             context[target] = first_value(lookup, *candidates)
 
+    context["routing"] = context.get("Host") or context.get("Host_CPU") or context.get("routing", "")
+
     return context
 
 
@@ -259,6 +271,7 @@ def build_filtered_query(sql, filter_column):
 def fetch_data():
     cpu_sql = load_sql("cpu.sql")
     software_sql = load_sql("software.sql")
+    usuario_sql = load_sql("usuario.sql")
     periferico_sql = load_sql("periferico.sql")
 
     conn = get_connection()
@@ -266,12 +279,18 @@ def fetch_data():
         cursor = conn.cursor()
         cpu_rows = query_to_dicts(cursor, cpu_sql)
         documentos = []
+        timestamp = current_timestamp()
 
         for cpu_row in cpu_rows:
             host = cpu_row.get("Host") or cpu_row.get("Host_CPU")
             if not host:
                 continue
 
+            usuario_rows = query_to_dicts(
+                cursor,
+                build_filtered_query(usuario_sql, "Host"),
+                (host,),
+            )
             software_rows = query_to_dicts(
                 cursor,
                 build_filtered_query(software_sql, "Host_CPU"),
@@ -283,8 +302,9 @@ def fetch_data():
                 (host,),
             )
 
+            user_row = usuario_rows[0] if usuario_rows else {}
             software_row = software_rows[0] if software_rows else {}
-            context = merge_aliases(cpu_row, software_row)
+            context = merge_aliases(cpu_row, software_row, user_row, timestamp)
             context["hardware"] = perifericos
             documentos.append(context)
 
